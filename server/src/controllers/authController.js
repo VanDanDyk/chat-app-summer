@@ -1,32 +1,27 @@
-import dotenv from 'dotenv'
-import jwt from 'jsonwebtoken'
 import User from '../models/userModel.js'
+import { generateTokens } from '../utils/generateTokens.js'
 
-dotenv.config()
-
-export const generateTokens = id => {
-	const accessToken = jwt.sign({ id }, process.env.JWT_ACCESS_TOKEN_SECRET, {
-		expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRES_IN
-	})
-	const refreshToken = jwt.sign({ id }, process.env.JWT_REFRESH_TOKEN_SECRET, {
-		expiresIn: process.env.JWT_REFRESH_TOKEN_EXPIRES_IN
-	})
-	return { accessToken, refreshToken }
-}
-
-export const register = async (req, res) => {
+export const register = async (req, res, next) => {
 	try {
 		const { username, email, password } = req.body
-		const userExists =
-			(await User.findOne({ email })) || (await User.findOne({ username }))
+		const userExists = await User.findOne({ $or: [{ email }, { username }] })
 
 		if (userExists) {
-			return res.status(400).json({
-				message: 'Пользователь с таким email и(-или) username уже зарегистрирован'
-			})
+			console.log('test')
+			res.status(400)
+			throw new Error(
+				'Пользователь с таким email и(-или) username уже зарегистрирован'
+			)
 		}
 
-		const user = await User.create({ username, email, password })
+		const user = new User({
+			username,
+			email,
+			password
+		})
+
+		await user.save()
+
 		const tokens = generateTokens(user._id)
 
 		res.cookie('refreshToken', tokens.refreshToken, {
@@ -45,7 +40,46 @@ export const register = async (req, res) => {
 			email: user.email
 		})
 	} catch (err) {
-		console.log(err)
-		return res.status(500).json({ message: `Ошибка регистрации: ${err.message}` })
+		next(err)
+	}
+}
+
+export const login = async (req, res, next) => {
+	try {
+		const { email, password } = req.body
+		const user = await User.findOne({ email }).select('+password')
+
+		if (!user) {
+			res.status(400)
+			throw new Error('Неверный email или пароль')
+		}
+
+		console.log(password)
+		console.log(user.password)
+		const isMatch = await user.correctPassword(password, user.password)
+		console.log(isMatch)
+		if (!isMatch) {
+			res.status(400)
+			throw new Error('Неверный email или пароль')
+		}
+
+		const tokens = generateTokens(user._id)
+		res.cookie('refreshToken', tokens.refreshToken, {
+			maxAge: 30 * 24 * 60 * 60 * 1000, // 30 дней
+			httpOnly: true
+		})
+
+		res.cookie('accessToken', tokens.accessToken, {
+			maxAge: 10 * 60 * 1000, // 10 минут
+			httpOnly: true
+		})
+
+		res.json({
+			_id: user._id,
+			username: user.username,
+			email: user.email
+		})
+	} catch (err) {
+		next(err)
 	}
 }
