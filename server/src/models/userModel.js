@@ -26,6 +26,7 @@ const userSchema = mongoose.Schema(
 			type: String,
 			required: [true, 'Пользователь должен иметь password'],
 			minlength: 6,
+			maxlength: 25,
 			select: false
 		},
 		chats: [

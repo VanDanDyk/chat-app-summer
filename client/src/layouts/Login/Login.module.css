@@ -2,7 +2,6 @@
 
 
 .wrapper{
-  position: relative;
   max-width: 430px;
   width: 100%;
   background: #fff;
@@ -60,15 +59,38 @@ form h3{
   font-weight: 500;
   margin-left: 10px;
 }
-.input-box.button input{
+
+.wrapper form .button{
+  height: 52px;
+  margin: 18px 0;
+} 
+
+.button input{
   color: #fff;
   letter-spacing: 1px;
   border: none;
   background: #4070f4;
   cursor: pointer;
 }
-.input-box.button input:hover{
+.button input:hover{
   background: #0e4bf1;
+}
+form .button input{
+  height: 100%;
+  width: 100%;
+  outline: none;
+  padding: 0 15px;
+  font-size: 17px;
+  font-weight: 400;
+  color: white;
+  border: 1.5px solid #C7BEBE;
+  border-bottom-width: 2.5px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+.button input:focus,
+.button input:valid{
+  border-color: #4070f4;
 }
 form .text h3{
  color: #333;
@@ -81,4 +103,36 @@ form .text h3 a{
 }
 form .text h3 a:hover{
   text-decoration: underline;
+}
+
+.errorMessageBl{
+  position: absolute;
+  display: block;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  top: 0;
+  left: 0;
+  margin-bottom: 200%;
+}
+
+.errorMessage{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-width: 30%;
+  font-size: 30px;
+  background-color: #D81A1A;
+  padding: 0.5%;
+  text-align: start;
+  color: white;
+  border-radius: 8px;
+  margin-top: 0.3%;
+  transition: 0.08s;
+  transform: translateY(-100px);
+}
+
+.errorMessage::before{
+  content: '❌'
 }
