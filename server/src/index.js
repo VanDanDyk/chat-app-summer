@@ -1,4 +1,5 @@
 import cookieParser from 'cookie-parser'
+import cors from 'cors'
 import dotenv from 'dotenv'
 import express from 'express'
 import http from 'http'
@@ -14,7 +15,6 @@ import userRouter from './routes/userRoutes.js'
 
 dotenv.config()
 
-// Подключение к MongoDB
 mongoose
 	.connect(process.env.MONGO_URI)
 	.then(() => {
@@ -26,6 +26,7 @@ mongoose
 
 const app = express()
 
+app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }))
 app.use(morgan('dev'))
 app.use(express.json())
 app.use(cookieParser())
@@ -40,11 +41,7 @@ const port = process.env.PORT || 3000
 const server = http.createServer(app)
 
 const io = new IOServer(server, {
-	cors: {
-		origin: '*',
-		credentials: true,
-		methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH']
-	}
+	cors: { origin: process.env.CLIENT_URL, credentials: true }
 })
 
 io.on('connection', socket => {
@@ -66,6 +63,7 @@ io.on('connection', socket => {
 
 	// отправка сообщения
 	socket.on('sendMessage', async ({ chatId, authorId, text }) => {
+		console.log('Получено сообщение:', { chatId, authorId, text })
 		try {
 			const message = await Message.create({
 				author: authorId,

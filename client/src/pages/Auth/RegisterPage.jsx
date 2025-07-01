@@ -14,7 +14,7 @@ const RegisterPage = () => {
 		e.preventDefault()
 		try {
 			await dispatch(registerUser({ username, email, password })).unwrap()
-			navigate('/home')
+			navigate('/')
 		} catch {
 			alert('Register failed')
 		}

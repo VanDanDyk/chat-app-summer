@@ -13,7 +13,7 @@ const LoginPage = () => {
 		e.preventDefault()
 		try {
 			await dispatch(loginUser({ email, password })).unwrap()
-			navigate('/home')
+			navigate('/')
 		} catch {
 			alert('Login failed')
 		}
