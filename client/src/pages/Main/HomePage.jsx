@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
-import { createChat, joinPublicChat } from '../../features/chat/chatSlice'
+import { createChat } from '../../features/chat/chatSlice'
 import { getAllUsers } from '../../features/users/usersSlice'
 
 const HomePage = () => {
@@ -21,21 +21,25 @@ const HomePage = () => {
 		fetchUsers()
 	}, [dispatch])
 
-	const startChat = async otherUserId => {
+	const startChat = async (otherUserId, chatType) => {
+		let chatPassword = null
+
+		if (chatType === 'private') {
+			chatPassword = prompt('Введите пароль для приватного чата')
+			if (!chatPassword) return
+		}
+
 		try {
 			const createdChat = await dispatch(
 				createChat({
 					title: 'unnamed',
-					privacy: 'public',
-					password: null,
+					privacy: chatType,
+					password: chatType === 'private' ? chatPassword : null,
 					members: [user._id, otherUserId]
 				})
 			).unwrap()
-			alert('Чат создан')
-			console.log(createdChat)
 			const chatId = createdChat._id
-			await dispatch(joinPublicChat(chatId)).unwrap()
-			navigate(`/chat/${chatId}`)
+			if (chatId) navigate(`/chat/${chatId}`)
 		} catch (err) {
 			alert(err.message)
 		}
@@ -48,7 +52,11 @@ const HomePage = () => {
 			<ul>
 				{users.map(u => (
 					<li key={u._id}>
-						{u.username} <button onClick={() => startChat(u._id)}>Чат</button>
+						<span>{u.username}</span>
+						<button onClick={() => startChat(u._id, 'public')}>Чат</button>
+						<button onClick={() => startChat(u._id, 'private')}>
+							Приватный чат
+						</button>
 					</li>
 				))}
 			</ul>

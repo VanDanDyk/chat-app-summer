@@ -2,9 +2,12 @@ import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
 import { useSocket } from '../../context/useSocket'
+import { getChatByIdAPI } from '../../features/chat/chatAPI'
 import {
 	addMessage,
 	fetchMessages,
+	joinPrivateChat,
+	joinPublicChat,
 	setCurrentChat
 } from '../../features/chat/chatSlice'
 
@@ -20,8 +23,26 @@ const ChatPage = () => {
 
 	useEffect(() => {
 		if (!chatId) return
-		dispatch(fetchMessages(chatId))
-		dispatch(setCurrentChat(chatId))
+
+		const fetchChatData = async () => {
+			try {
+				const chat = await getChatByIdAPI(chatId)
+				if (chat.privacy === 'private') {
+					const password = prompt('Введите пароль для приватного чата')
+					if (!password) return
+					await dispatch(joinPrivateChat({ chatId, password })).unwrap()
+				} else {
+					await dispatch(joinPublicChat(chatId)).unwrap()
+				}
+
+				dispatch(setCurrentChat(chat))
+				dispatch(fetchMessages(chatId))
+			} catch (err) {
+				alert('Ошибка подключения к чату: ', err.message)
+			}
+		}
+
+		fetchChatData()
 	}, [chatId, dispatch])
 
 	useEffect(() => {
@@ -51,12 +72,16 @@ const ChatPage = () => {
 			}
 		}
 
-		const handleUserJoined = ({ username }) => {
-			setLog(prev => [...prev, `${username} вошёл в чат`])
+		const handleUserJoined = ({ username, chatId: incomingChatId }) => {
+			if (incomingChatId === chatId) {
+				setLog(prev => [...prev, `${username} вошёл в чат`])
+			}
 		}
 
-		const handleUserLeft = ({ username }) => {
-			setLog(prev => [...prev, `${username} вышел из чата`])
+		const handleUserLeft = ({ username, chatId: incomingChatId }) => {
+			if (incomingChatId === chatId) {
+				setLog(prev => [...prev, `${username} вышел из чата`])
+			}
 		}
 
 		socket.on('newMessage', handleNewMessage)
