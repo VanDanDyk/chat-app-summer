@@ -27,9 +27,10 @@ const ChatPage = () => {
 		if (!chatId) return
 
 		const fetchChatData = async () => {
+			
 			try {
 				const chat = await getChatByIdAPI(chatId)
-				if (chat.privacy === 'private') {
+				if (chat.privacy === 'private' && !(chat.members.includes(user._id))) {
 					const password = prompt('Введите пароль для приватного чата')
 					if (!password) return
 					await dispatch(joinPrivateChat({ chatId, password })).unwrap()

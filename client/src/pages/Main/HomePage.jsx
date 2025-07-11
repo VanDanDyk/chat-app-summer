@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { createChat, joinPublicChat, fetchChats } from '../../features/chat/chatSlice'
 import { getAllUsers } from '../../features/users/usersSlice'
 import styles from './MainPages.module.css'
+import { MdOutlineVpnKey,MdLock } from "react-icons/md";
 
 const HomePage = () => {
 	const dispatch = useDispatch()
@@ -25,11 +26,6 @@ const HomePage = () => {
 	const startChat = async (otherUserId, chatType) => {
 		let chatPassword = null
 
-		if (chatType === 'private') {
-			chatPassword = prompt('Введите пароль для приватного чата')
-			if (!chatPassword) return
-		}
-
 		try {
 			const ExistingChats = await dispatch(fetchChats()).unwrap()
 			const ExistingChat = ExistingChats.find((el) => el.members.includes(user._id) && el.members.includes(otherUserId))
@@ -37,11 +33,14 @@ const HomePage = () => {
 				navigate(`/chat/${ExistingChat.id}`)
 			}
 			else{
+				if (chatType === 'private') {
+					chatPassword = prompt('Введите пароль для приватного чата')
+				}
 			const createdChat = await dispatch(
 				createChat({
 					title: 'unnamed',
 					privacy: chatType,
-					password: chatType === 'private' ? chatPassword : null,
+					password: chatPassword,
 					members: [user._id, otherUserId]
 				})
 			).unwrap()
@@ -64,12 +63,20 @@ const HomePage = () => {
 						(i+1)%2!=0 ?
 						(
 						<li key={el._id}>
-							<div onClick={() => startChat(el._id)}>
-							{el.username} 
+							<div>
+							<span>{el.username}</span> 
+							<div>
+							<button onClick={() => startChat(el._id, 'public')}><MdLock/></button>
+							<button onClick={() => startChat(el._id, 'private')}><MdOutlineVpnKey/></button>
+							</div>
 							</div>
 							{arr[i+1] ?
-							<div onClick={() => startChat(arr[i+1]._id)}>
-							{arr[i+1].username} 
+							<div>
+							<span>{arr[i+1].username}</span>
+							<div>
+							<button onClick={() => startChat(arr[i+1]._id, 'public')}><MdLock/></button>
+							<button onClick={() => startChat(arr[i+1]._id, 'private')}><MdOutlineVpnKey/></button>
+							</div>
 							</div> : null}
 						</li> 
 					) : null)}

@@ -1,5 +1,5 @@
 .wrapper{
-    width: 90%;
+    width: 60%;
     height: 90%;
     background-color: white;
     border-top-left-radius: 25px;
@@ -77,10 +77,39 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: start;
+    justify-content: space-between;
     background-color: white;
     border-bottom: 2px solid rgb(124, 124, 124);
+    padding-right: 3%;
+    box-sizing: border-box;
 }
+
+.usersList > ul > li > div > div {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin-right: 10%;
+}
+
+.usersList > ul > li > div > div > button{
+    width: 30px;
+    height: 30px;
+    background-color: transparent;
+    border: 0;
+    font-size: 30px;
+    box-sizing:content-box;
+    padding: 20%;
+    background: #E61A23;
+    border-radius: 50%;
+    color: white;
+}
+
+.usersList > ul > li > div > div > button:first-child{
+    margin-right: 20%;
+    background-color: #39AE49;
+}
+
 
 .usersList > ul > li > div:hover{
     background-color: rgb(204, 204, 204);
