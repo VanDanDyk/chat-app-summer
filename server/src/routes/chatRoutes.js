@@ -1,6 +1,7 @@
 import express from 'express'
 import {
 	createChat,
+	createGroupChat,
 	getChatById,
 	getChatMessages,
 	getMyChats,
@@ -13,6 +14,7 @@ const router = express.Router()
 
 router.use(authMiddleware)
 router.post('/', createChat)
+router.post('/group', createGroupChat)
 router.get('/', getMyChats)
 router.get('/:id', getChatById)
 router.post('/:id/join-public', joinPublicChat)

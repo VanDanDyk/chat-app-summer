@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import {
 	createChatAPI,
+	createGroupChatAPI,
 	fetchChatsAPI,
 	fetchMessagesAPI,
 	joinPrivateChatAPI,
@@ -11,14 +12,25 @@ export const fetchChats = createAsyncThunk('chat/fetchChats', async () => {
 	const response = await fetchChatsAPI()
 	return response
 })
+
 export const fetchMessages = createAsyncThunk('chat/fetchMessages', async chatId => {
 	const response = await fetchMessagesAPI(chatId)
 	return response
 })
+
 export const createChat = createAsyncThunk('chat/createChat', async payload => {
 	const response = await createChatAPI(payload)
 	return response
 })
+
+export const createGroupChat = createAsyncThunk(
+	'chat/createGroupChat',
+	async payload => {
+		const response = await createGroupChatAPI(payload)
+		return response
+	}
+)
+
 export const joinPublicChat = createAsyncThunk(
 	'chat/joinPublicChat',
 	async chatId => {
@@ -65,6 +77,11 @@ const chatSlice = createSlice({
 			.addCase(createChat.fulfilled, (state, action) => {
 				state.chats.push(action.payload)
 			})
+			.addCase(createGroupChat.fulfilled, (state, action) => {
+				console.log(action)
+				console.log(action.payload)
+				state.chats.push(action.payload)
+			})
 			.addCase(joinPublicChat.fulfilled, (state, action) => {
 				console.log(action)
 				state.currentChat = action.payload
@@ -73,7 +90,9 @@ const chatSlice = createSlice({
 				console.log(action)
 			})
 			.addCase(joinPrivateChat.fulfilled, (state, action) => {
-				state.currentChat = action.payload
+				if (action.payload.accessGranted) {
+					state.currentChat = action.payload.chatId
+				}
 			})
 			.addCase(joinPrivateChat.rejected, (state, action) => {
 				console.log(action)

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { useSocket } from '../../context/useSocket'
 import { getChatByIdAPI } from '../../features/chat/chatAPI'
 import {
@@ -20,6 +20,7 @@ const ChatPage = () => {
 
 	const [input, setInput] = useState('')
 	const [log, setLog] = useState([])
+	const navigate = useNavigate()
 
 	useEffect(() => {
 		if (!chatId) return
@@ -28,9 +29,23 @@ const ChatPage = () => {
 			try {
 				const chat = await getChatByIdAPI(chatId)
 				if (chat.privacy === 'private') {
-					const password = prompt('Введите пароль для приватного чата')
-					if (!password) return
-					await dispatch(joinPrivateChat({ chatId, password })).unwrap()
+					if (!chat.members.includes(user._id)) {
+						const password = prompt('Введите пароль для приватного чата')
+						if (!password) {
+							navigate('/')
+							return
+						}
+
+						const result = await dispatch(
+							joinPrivateChat({ chatId, password })
+						).unwrap()
+
+						if (!result.accessGranted) {
+							alert('Пароль не верный')
+							navigate('/')
+							return
+						}
+					}
 				} else {
 					await dispatch(joinPublicChat(chatId)).unwrap()
 				}
@@ -39,11 +54,12 @@ const ChatPage = () => {
 				dispatch(fetchMessages(chatId))
 			} catch (err) {
 				alert('Ошибка подключения к чату: ', err.message)
+				navigate('/')
 			}
 		}
 
 		fetchChatData()
-	}, [chatId, dispatch])
+	}, [chatId, dispatch, navigate, user._id])
 
 	useEffect(() => {
 		if (!socket || !chatId || !user) return

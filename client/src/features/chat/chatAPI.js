@@ -13,6 +13,9 @@ export const fetchMessagesAPI = async chatId =>
 export const createChatAPI = async payload =>
 	axios.post(CHAT_URL, payload, config).then(res => res.data)
 
+export const createGroupChatAPI = async payload =>
+	axios.post(`${CHAT_URL}/group`, payload, config).then(res => res.data)
+
 export const joinPublicChatAPI = async chatId =>
 	axios.post(`${CHAT_URL}/${chatId}/join-public`, {}, config).then(res => res.data)
 

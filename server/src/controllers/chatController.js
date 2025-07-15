@@ -45,6 +45,36 @@ export const createChat = async (req, res, next) => {
 	}
 }
 
+export const createGroupChat = async (req, res, next) => {
+	try {
+		const { title, privacy, password, members } = req.body
+
+		if (!members || members.length < 2) {
+			throw new Error('Для создания группового чата необходимо минимум 2 участника')
+		}
+
+		if (privacy === 'private' && !password) {
+			throw new Error('Для создания группового приватного чата необходим пароль')
+		}
+
+		const existingChat = await Chat.findOne({
+			title,
+			members: { $all: members }
+		})
+
+		if (existingChat) {
+			return res.status(200).json(existingChat)
+		}
+
+		const chat = await Chat.create({ title, privacy, password, members })
+		await User.updateMany({ _id: { $in: members } }, { $push: { chats: chat._id } })
+
+		res.status(201).json(chat)
+	} catch (err) {
+		next(err)
+	}
+}
+
 export const getMyChats = async (req, res, next) => {
 	try {
 		const userId = req.user._id
@@ -115,7 +145,11 @@ export const joinPrivateChat = async (req, res, next) => {
 			await User.findByIdAndUpdate(userId, { $push: { chats: chat._id } })
 		}
 
-		res.status(200).json({ message: 'Вы успешно присоединились к чату' })
+		res.status(200).json({
+			message: 'Вы успешно присоединились к чату',
+			chatId,
+			accessGranted: true
+		})
 	} catch (err) {
 		next(err)
 	}
