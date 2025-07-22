@@ -12,7 +12,7 @@ const ProtectedRoute = () => {
 	}, [dispatch, status])
 
 	if (status === 'idle' || status === 'loading') return <p>Loading...</p>
-	if (!user) return <Navigate to='/login' replace />
+	if (!user) return <Navigate to='/auth/login' replace />
 
 	return <Outlet />
 }

@@ -1,17 +1,17 @@
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, useParams } from 'react-router-dom'
-import { useSocket } from '../../context/useSocket'
-import { getChatByIdAPI } from '../../features/chat/chatAPI'
+import { useSocket } from '../context/socket/useSocket'
+import { getChatByIdAPI } from '../features/chat/chatAPI'
 import {
 	addMessage,
 	fetchMessages,
 	joinPrivateChat,
 	joinPublicChat,
 	setCurrentChat
-} from '../../features/chat/chatSlice'
+} from '../features/chat/chatSlice'
 
-const ChatPage = () => {
+const Chat = () => {
 	const { chatId } = useParams()
 	const dispatch = useDispatch()
 	const socket = useSocket()
@@ -159,4 +159,4 @@ const ChatPage = () => {
 	)
 }
 
-export default ChatPage
+export default Chat

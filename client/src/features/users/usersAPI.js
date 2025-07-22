@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { SERVER_URL } from '../config'
+import { SERVER_URL } from '../../utils/config'
 
 const USERS_URL = `${SERVER_URL}/users`
 const config = { withCredentials: true }

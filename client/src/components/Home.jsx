@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
-import { createChat, createGroupChat } from '../../features/chat/chatSlice'
-import { getAllUsers } from '../../features/users/usersSlice'
+import { createChat, createGroupChat } from '../features/chat/chatSlice'
+import { getAllUsers } from '../features/users/usersSlice'
 
-const HomePage = () => {
+const Home = () => {
 	const dispatch = useDispatch()
 	const navigate = useNavigate()
 	const { user } = useSelector(state => state.auth)
@@ -129,4 +129,4 @@ const HomePage = () => {
 	)
 }
 
-export default HomePage
+export default Home
